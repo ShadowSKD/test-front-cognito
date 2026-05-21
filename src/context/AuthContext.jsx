@@ -19,14 +19,24 @@ export const AuthProvider = ({ children }) => {
       const authUser = await getCurrentUser();
       const session = await fetchAuthSession();
       
-      const payload = session.tokens?.idToken?.payload || {};
+      const idPayload = session.tokens?.idToken?.payload || {};
+      const accessPayload = session.tokens?.accessToken?.payload || {};
+      
+      const groups = accessPayload['cognito:groups'] || idPayload['cognito:groups'] || [];
+      
+      let userRole = 'CUSTOMER';
+      if (groups.includes('Admins')) {
+        userRole = 'ADMIN';
+      } else if (idPayload['custom:role']) {
+        userRole = idPayload['custom:role'];
+      }
 
       const mappedUser = {
         id: authUser.userId,
         username: authUser.username,
-        email: payload.email,
-        name: payload.name || payload.given_name || payload.email || 'User',
-        role: payload['custom:role'] || 'CUSTOMER'
+        email: idPayload.email,
+        name: idPayload.name || idPayload.given_name || idPayload.email || 'User',
+        role: userRole
       };
 
       setUser(mappedUser);

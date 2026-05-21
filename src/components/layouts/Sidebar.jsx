@@ -1,12 +1,12 @@
 import React, { useContext, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Package, 
-  ShoppingCart, 
-  CreditCard, 
-  Users, 
-  Settings, 
+import {
+  LayoutDashboard,
+  Package,
+  ShoppingCart,
+  CreditCard,
+  Users,
+  Settings,
   LogOut,
   ChevronLeft,
   Menu
@@ -23,7 +23,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     { name: 'Products', path: '/dashboard/products', icon: Package },
     { name: 'Orders', path: '/dashboard/orders', icon: ShoppingCart },
     { name: 'Payments', path: '/dashboard/payments', icon: CreditCard },
-    ...(user?.role === 'ADMIN' ? [{ name: 'Admin', path: '/dashboard/admin', icon: Users }] : []),
+    ...(user?.role === 'ADMIN' ? [{ name: 'Admin', path: '/admin/dashboard', icon: Users }] : []),
     { name: 'Profile', path: '/dashboard/profile', icon: Settings },
   ];
 
@@ -31,15 +31,15 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     <>
       {/* Mobile overlay */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-40 bg-black/50 md:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
 
-      <motion.aside 
+      <motion.aside
         initial={false}
-        animate={{ 
+        animate={{
           width: isOpen ? 256 : 80,
           x: isOpen ? 0 : (window.innerWidth < 768 ? -80 : 0) // slide out completely on mobile if closed
         }}
@@ -66,11 +66,10 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-4 px-3 py-3 rounded-xl transition-all ${
-                  isActive 
-                    ? 'bg-primary/10 text-primary border border-primary/20' 
+                className={`flex items-center gap-4 px-3 py-3 rounded-xl transition-all ${isActive
+                    ? 'bg-primary/10 text-primary border border-primary/20'
                     : 'text-textSecondary hover:bg-white/5 hover:text-white'
-                }`}
+                  }`}
                 title={!isOpen ? item.name : undefined}
               >
                 <Icon size={20} className="min-w-[20px]" />
@@ -81,7 +80,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         </div>
 
         <div className="p-4 border-t border-white/5">
-          <button 
+          <button
             onClick={logout}
             className={`w-full flex items-center gap-4 px-3 py-3 rounded-xl text-textSecondary hover:bg-danger/10 hover:text-danger transition-all`}
             title={!isOpen ? "Logout" : undefined}

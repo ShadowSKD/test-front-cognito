@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import Card from '../../components/ui/Card';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
+import { useAuth } from '../../context/AuthContext';
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState('general');
+  const { user } = useAuth();
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -31,22 +33,22 @@ const ProfilePage = () => {
       {activeTab === 'general' && (
         <Card>
           <div className="flex items-center gap-6 mb-8">
-            <div className="w-24 h-24 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center text-3xl font-bold text-primary">
-              A
+            <div className="w-24 h-24 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center text-3xl font-bold text-primary uppercase">
+              {user?.name?.charAt(0) || 'U'}
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-white">Admin User</h3>
-              <p className="text-textSecondary text-sm mb-3">admin@equicart.com</p>
+              <h3 className="text-lg font-semibold text-white">{user?.name || 'User'}</h3>
+              <p className="text-textSecondary text-sm mb-3">{user?.email}</p>
               <Button variant="outline" className="text-sm py-1.5">Change Avatar</Button>
             </div>
           </div>
 
           <form className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input label="Full Name" defaultValue="Admin User" />
-              <Input label="Email Address" defaultValue="admin@equicart.com" type="email" />
+              <Input label="Full Name" defaultValue={user?.name || ''} />
+              <Input label="Email Address" defaultValue={user?.email || ''} type="email" />
               <Input label="Phone Number" defaultValue="+1 234 567 8900" />
-              <Input label="Role" defaultValue="ADMIN" disabled />
+              <Input label="Role" defaultValue={user?.role || 'CUSTOMER'} disabled />
             </div>
             <div className="flex justify-end gap-4">
               <Button variant="ghost">Cancel</Button>

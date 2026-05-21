@@ -49,7 +49,7 @@ const StoreLayout = () => {
 
             {/* Actions */}
             <div className="flex items-center gap-3 md:gap-4 shrink-0">
-              <Link to={user ? "/admin" : "/login"} className="flex items-center gap-2 text-textSecondary hover:text-white transition-colors">
+              <Link to={user ? (user.role === 'ADMIN' ? '/admin' : '/dashboard') : '/login'} className="flex items-center gap-2 text-textSecondary hover:text-white transition-colors">
                 <User size={20} />
                 <span className="hidden sm:block text-sm font-medium">{user ? 'Account' : 'Login'}</span>
               </Link>

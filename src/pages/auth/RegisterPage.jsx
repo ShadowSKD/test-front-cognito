@@ -30,7 +30,7 @@ const RegisterPage = () => {
 
     try {
       await signUp({
-        username: formData.username,
+        username: formData.email,
         password: formData.password,
         options: {
           userAttributes: {
@@ -39,8 +39,6 @@ const RegisterPage = () => {
           }
         }
       });
-      // Optionally we might want to tell the user they need to check their email for a verification code
-      // and redirect to a confirmation page, but for now we just redirect to login.
       navigate('/login');
     } catch (err) {
       setError(err.message || 'Failed to register account');
