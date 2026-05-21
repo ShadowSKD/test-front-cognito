@@ -46,10 +46,10 @@ const AdminDashboard = () => {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={dummySystemData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
-                <XAxis dataKey="name" stroke="#888" tick={{fill: '#888'}} axisLine={false} tickLine={false} />
-                <YAxis stroke="#888" tick={{fill: '#888'}} axisLine={false} tickLine={false} />
-                <Tooltip 
-                  cursor={{fill: '#262626'}}
+                <XAxis dataKey="name" stroke="#888" tick={{ fill: '#888' }} axisLine={false} tickLine={false} />
+                <YAxis stroke="#888" tick={{ fill: '#888' }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  cursor={{ fill: '#262626' }}
                   contentStyle={{ backgroundColor: '#171717', borderColor: '#333', color: '#fff', borderRadius: '8px' }}
                 />
                 <Bar dataKey="load" fill="#FF4500" radius={[4, 4, 0, 0]} />
@@ -72,11 +72,10 @@ const AdminDashboard = () => {
                 <div className="text-xs text-textSecondary whitespace-nowrap pt-0.5">{log.time}</div>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
-                      log.level === 'INFO' ? 'bg-blue-500/10 text-blue-500' :
-                      log.level === 'WARN' ? 'bg-warning/10 text-warning' :
-                      'bg-danger/10 text-danger'
-                    }`}>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${log.level === 'INFO' ? 'bg-blue-500/10 text-blue-500' :
+                        log.level === 'WARN' ? 'bg-warning/10 text-warning' :
+                          'bg-danger/10 text-danger'
+                      }`}>
                       {log.level}
                     </span>
                     <span className="text-xs text-textSecondary">[{log.service}]</span>
@@ -88,6 +87,7 @@ const AdminDashboard = () => {
           </div>
         </Card>
       </div>
+
     </div>
   );
 };

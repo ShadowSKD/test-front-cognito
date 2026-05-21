@@ -56,15 +56,15 @@ const AppRouter = () => {
         <Route path="/" element={<StoreLayout />}>
           {/* Public Routes */}
           <Route index element={<HomePage />} />
-          
+
           {/* Normal Auth Routes (Storefront) */}
-          <Route 
-            path="checkout" 
+          <Route
+            path="checkout"
             element={
               <AuthenticatedRoute>
                 <CheckoutPage />
               </AuthenticatedRoute>
-            } 
+            }
           />
         </Route>
 
@@ -72,8 +72,8 @@ const AppRouter = () => {
         <Route path="/register" element={<RegisterPage />} />
 
         {/* User Dashboard Routes (with Sidebar) */}
-        <Route 
-          path="/dashboard" 
+        <Route
+          path="/dashboard"
           element={
             <AuthenticatedRoute>
               <DashboardLayout />
@@ -81,7 +81,6 @@ const AppRouter = () => {
           }
         >
           <Route index element={<UserDashboard />} />
-          <Route path="products" element={<ProductManagement />} />
           <Route path="orders" element={<OrderManagement />} />
           <Route path="payments" element={<PaymentDashboard />} />
           <Route path="profile" element={<ProfilePage />} />
@@ -91,6 +90,10 @@ const AppRouter = () => {
         <Route path="/admin" element={<AdminRoute><DashboardLayout /></AdminRoute>}>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="dashboard/products" element={<ProductManagement />} />
+          <Route path="dashboard/orders" element={<OrderManagement />} />
+          <Route path="dashboard/payments" element={<PaymentDashboard />} />
+          <Route path="dashboard/profile" element={<ProfilePage />} />
         </Route>
       </Routes>
     </Router>

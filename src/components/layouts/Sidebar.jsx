@@ -17,15 +17,15 @@ import { motion } from 'framer-motion';
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const { user, logout } = useContext(AuthContext);
   const location = useLocation();
-
+  const path_prefix = user?.role === "ADMIN" ? "/admin/dashboard/" : "/dashboard/";
   const navItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Products', path: '/dashboard/products', icon: Package },
-    { name: 'Orders', path: '/dashboard/orders', icon: ShoppingCart },
-    { name: 'Payments', path: '/dashboard/payments', icon: CreditCard },
-    ...(user?.role === 'ADMIN' ? [{ name: 'Admin', path: '/admin/dashboard', icon: Users }] : []),
-    { name: 'Profile', path: '/dashboard/profile', icon: Settings },
-  ];
+    { name: 'Dashboard', path: path_prefix, icon: LayoutDashboard, roles: ['USER', 'ADMIN'] },
+    { name: 'Products', path: path_prefix + 'products', icon: Package, roles: ['ADMIN'] },
+    { name: 'Orders', path: path_prefix + 'orders', icon: ShoppingCart, roles: ['USER', 'ADMIN'] },
+    { name: 'Payments', path: path_prefix + 'payments', icon: CreditCard, roles: ['USER', 'ADMIN'] },
+    { name: 'Admin Console', path: path_prefix, icon: Users, roles: ['ADMIN'] },
+    { name: 'Profile', path: path_prefix + 'profile', icon: Settings, roles: ['USER', 'ADMIN'] },
+  ].filter(item => item.roles.includes(user?.role || 'USER'));
 
   return (
     <>
@@ -67,8 +67,8 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 key={item.path}
                 to={item.path}
                 className={`flex items-center gap-4 px-3 py-3 rounded-xl transition-all ${isActive
-                    ? 'bg-primary/10 text-primary border border-primary/20'
-                    : 'text-textSecondary hover:bg-white/5 hover:text-white'
+                  ? 'bg-primary/10 text-primary border border-primary/20'
+                  : 'text-textSecondary hover:bg-white/5 hover:text-white'
                   }`}
                 title={!isOpen ? item.name : undefined}
               >
