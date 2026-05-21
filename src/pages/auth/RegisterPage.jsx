@@ -4,19 +4,19 @@ import { motion } from 'framer-motion';
 import { Package, User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
-import api from '../../services/api';
+import { signUp } from 'aws-amplify/auth';
 
 const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [formData, setFormData] = useState({ 
-    username: '', 
-    email: '', 
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
     password: '',
     role: 'CUSTOMER' // Default role
   });
-  
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -29,10 +29,19 @@ const RegisterPage = () => {
     setError('');
 
     try {
-      await api.post('/users/register', formData);
+      await signUp({
+        username: formData.email,
+        password: formData.password,
+        options: {
+          userAttributes: {
+            email: formData.email,
+            name: formData.username
+          }
+        }
+      });
       navigate('/login');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to register account');
+      setError(err.message || 'Failed to register account');
     } finally {
       setLoading(false);
     }

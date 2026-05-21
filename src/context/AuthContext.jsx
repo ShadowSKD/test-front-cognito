@@ -1,61 +1,80 @@
-/* eslint-disable react-refresh/only-export-components */
-import { createContext, useEffect, useContext, useMemo } from 'react';
-import { useAuth as useCognitoAuth } from 'react-oidc-context';
+import { createContext, useEffect, useContext, useState } from 'react';
+import { getCurrentUser, fetchAuthSession, signOut } from 'aws-amplify/auth';
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const cognitoAuth = useCognitoAuth();
-
-  // Derive the user object dynamically and memoize it to prevent unnecessary effect runs
-  const user = useMemo(() => {
-    const profile = cognitoAuth.user?.profile;
-    return cognitoAuth.isAuthenticated && profile ? {
-      id: profile.sub,
-      username: profile['cognito:username'] || profile.email || profile.sub,
-      email: profile.email,
-      name: profile.name || profile.given_name || profile.email || 'User',
-      role: profile['custom:role'] || 'CUSTOMER' // default role
-    } : null;
-  }, [cognitoAuth.isAuthenticated, cognitoAuth.user]);
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (cognitoAuth.user) {
-      // Save Cognito tokens in localStorage for API requests
-      if (cognitoAuth.user.id_token) {
-        localStorage.setItem('token', cognitoAuth.user.id_token);
-      } else if (cognitoAuth.user.access_token) {
-        localStorage.setItem('token', cognitoAuth.user.access_token);
-      }
-      
-      if (user) {
-        localStorage.setItem('user', JSON.stringify(user));
-      }
-    } else {
-      if (!cognitoAuth.isLoading) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-      }
-    }
-  }, [cognitoAuth.user, cognitoAuth.isLoading, user]);
+    checkUser();
+  }, []);
 
-  const login = () => {
-    cognitoAuth.signinRedirect();
+  const checkUser = async () => {
+    setIsLoading(true);
+    try {
+      const authUser = await getCurrentUser();
+      const session = await fetchAuthSession();
+      
+      const idPayload = session.tokens?.idToken?.payload || {};
+      const accessPayload = session.tokens?.accessToken?.payload || {};
+      
+      const groups = accessPayload['cognito:groups'] || idPayload['cognito:groups'] || [];
+      
+      let userRole = 'CUSTOMER';
+      if (groups.includes('Admins')) {
+        userRole = 'ADMIN';
+      } else if (idPayload['custom:role']) {
+        userRole = idPayload['custom:role'];
+      }
+
+      const mappedUser = {
+        id: authUser.userId,
+        username: authUser.username,
+        email: idPayload.email,
+        name: idPayload.name || idPayload.given_name || idPayload.email || 'User',
+        role: userRole
+      };
+
+      setUser(mappedUser);
+      setIsAuthenticated(true);
+      setError(null);
+      
+      if (session.tokens?.idToken) {
+        localStorage.setItem('token', session.tokens.idToken.toString());
+      } else if (session.tokens?.accessToken) {
+        localStorage.setItem('token', session.tokens.accessToken.toString());
+      }
+      localStorage.setItem('user', JSON.stringify(mappedUser));
+
+    } catch (err) {
+      setUser(null);
+      setIsAuthenticated(false);
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const logout = () => {
-    // Standard Cognito signout flow
-    const clientId = import.meta.env.VITE_COGNITO_CLIENT_ID || "2clreo9n0em767tadtmgfmus2o";
-    const logoutUri = import.meta.env.VITE_COGNITO_LOGOUT_URI || "http://localhost:5173";
-    const cognitoDomain = import.meta.env.VITE_COGNITO_DOMAIN || "https://us-east-1mpv8nnjmg.auth.us-east-1.amazoncognito.com";
-    
-    // Clear tokens
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    cognitoAuth.removeUser();
-    
-    // Redirect to federated logout
-    window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
+  const login = async () => {
+    await checkUser();
+  };
+
+  const logout = async () => {
+    try {
+      await signOut();
+      setUser(null);
+      setIsAuthenticated(false);
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    } catch (err) {
+      console.error('Error signing out: ', err);
+    }
   };
 
   return (
@@ -63,14 +82,11 @@ export const AuthProvider = ({ children }) => {
       user,
       login,
       logout,
-      loading: cognitoAuth.isLoading,
-      isLoading: cognitoAuth.isLoading,
-      isAuthenticated: cognitoAuth.isAuthenticated,
-      error: cognitoAuth.error,
-      signinRedirect: () => cognitoAuth.signinRedirect(),
-      signoutRedirect: logout,
-      removeUser: () => cognitoAuth.removeUser(),
-      cognitoAuth
+      loading: isLoading,
+      isLoading,
+      isAuthenticated,
+      error,
+      checkUser
     }}>
       {children}
     </AuthContext.Provider>
